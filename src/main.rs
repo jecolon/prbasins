@@ -139,9 +139,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         },
     ];
 
-    println!("\n{:->117}", "-");
+    println!("\n+{:->117}+", "-");
     println!(
-        "|{:12}|{:^8}|{:^8}|{:^18}|{:^10}| {:^8}|{:^8}|{:^8}|{:^8}|{:^8}|{:^8}|",
+        "| {:12}|{:^8}|{:^8}|{:^18}|{:^10}| {:^8}|{:^8}|{:^8}|{:^8}|{:^8}|{:^8} |",
         "Basin",
         "Level",
         "Change",
@@ -154,7 +154,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         "Control",
         "Capacity",
     );
-    println!("{:->117}", "-");
+    println!("+{:->117}+", "-");
 
     let today = Utc::now();
     let yesterday = today.checked_sub_signed(Duration::days(1)).unwrap();
@@ -229,7 +229,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
             }
 
             println!(
-                "|{:12}|{:>8.2}|{:>8.2}|{:^18}|{:^10}| {:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8}|",
+                "| {:12}|{:>8.2}|{:>8.2}|{:^18}|{:^10}| {:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8} |",
                 basin.name,
                 latest,
                 latest - previous,
@@ -251,7 +251,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         async_std::task::block_on(handle)?;
     }
 
-    println!("{:->117}", "-");
+    println!("+{:->117}+", "-");
 
     Ok(())
 }
