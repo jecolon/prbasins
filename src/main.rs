@@ -139,8 +139,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         },
     ];
 
+    println!("\n{:->117}", "-");
     println!(
-        "{:10} {:>8} {:8} {:16} {:10}  {:>8} {:>9} {:>8} {:>8} {:>8} {:>8}",
+        "|{:12}|{:^8}|{:^8}|{:^18}|{:^10}| {:^8}|{:^8}|{:^8}|{:^8}|{:^8}|{:^8}|",
         "Basin",
         "Level",
         "Change",
@@ -153,6 +154,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         "Control",
         "Capacity",
     );
+    println!("{:->117}", "-");
 
     let today = Utc::now();
     let yesterday = today.checked_sub_signed(Duration::days(1)).unwrap();
@@ -201,7 +203,10 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
                 for (i, column) in line.split("\t").enumerate() {
                     match i {
                         2 => date = column.to_string(),
-                        4 => latest = column.parse()?,
+                        4 => latest = match column.parse() {
+                            Ok(v) => v,
+                            Err(_) => continue,
+                        },
                         _ => {},
                     }
                 }
@@ -224,7 +229,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
             }
 
             println!(
-                "{:10} {:8.2} [{:5.2}m] {:16} {:10}  {:8.2} {:9.2} {:8.2} {:8.2} {:8.2} {:8}",
+                "|{:12}|{:>8.2}|{:>8.2}|{:^18}|{:^10}| {:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8}|",
                 basin.name,
                 latest,
                 latest - previous,
@@ -245,6 +250,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     for handle in handles {
         async_std::task::block_on(handle)?;
     }
+
+    println!("{:->117}", "-");
 
     Ok(())
 }
