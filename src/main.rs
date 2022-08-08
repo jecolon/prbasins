@@ -200,7 +200,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
                     continue;
                 }
 
-                for (i, column) in line.split("\t").enumerate() {
+                for (i, column) in line.split('\t').enumerate() {
                     match i {
                         2 => date = column.to_string(),
                         4 => latest = match column.parse() {
