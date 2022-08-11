@@ -186,7 +186,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
             let mut previous = 0.;
             let mut latest = 0.;
             let mut date = String::new();
-            let mut status = "UNKNOWN";
+            let mut status = "Unknown";
+            let mut last_line: Option<String> = None;
 
             while let Some(line_result) = lines.next().await {
                 let line = line_result?;
@@ -196,37 +197,49 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
                 }
 
                 line_count += 1;
-                if line_count < 96 {
-                    continue;
-                }
+                last_line = Some(line);
 
-                for (i, column) in line.split('\t').enumerate() {
-                    match i {
-                        2 => date = column.to_string(),
-                        4 => latest = match column.parse() {
-                            Ok(v) => v,
-                            Err(_) => continue,
-                        },
-                        _ => {},
+                if line_count == 1 {
+                    for (i, column) in last_line.as_ref().unwrap().split('\t').enumerate() {
+                        if i == 4 {
+                            previous = match column.parse() {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    eprintln!("Error parsing {}: {}", column, e);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
+            }
 
-                if line_count == 96 {
-                    previous = latest;
-                }
+            if let Some(line) = last_line {
+                    for (i, column) in line.split('\t').enumerate() {
+                        match i {
+                            2 => date = column.to_string(),
+                            4 => latest = match column.parse() {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    eprintln!("Error parsing {}: {}", column, e);
+                                    break;
+                                }
+                            },
+                            _ => {},
+                        }
+                    }
 
                 if latest >= basin.overflow {
-                    status = "OVERFLOW";
+                    status = "Overflow";
                 } else if latest >= basin.secure {
-                    status = "SECURE";
+                    status = "Secure";
                 } else if latest >= basin.observe {
-                    status = "OBSERVE";
+                    status = "Observe";
                 } else if latest >= basin.adjust {
-                    status = "ADJUST";
+                    status = "Adjust";
                 } else if latest < basin.adjust {
-                    status = "CONTROL";
+                    status = "Control";
                 }
-            }
 
             println!(
                 "| {:12}|{:>8.2}|{:>8.2}|{:^18}|{:^10}| {:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8.2}|{:>8} |",
@@ -242,6 +255,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
                 basin.control,
                 basin.capacity,
             );
+            }
 
             Ok::<(), Box<dyn std::error::Error + Send + Sync + 'static>>(())
         }));
